@@ -1,0 +1,14 @@
+image: maven:3.9-eclipse-temurin-21
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2"
+cache:
+  paths: [.m2/]
+
+corrections:
+  script:
+    - for d in correction/lab4/exercice2/banque-api correction/lab4/exercice3/banque-api correction/lab5/banque-api correction/lab6/banque-api correction/lab7/banque-api; do echo "=== $d"; (cd $d && mvn -B -q verify) || exit 1; done
+
+generation-lab4:
+  script:
+    - mkdir -p outils && curl -sSLo outils/openapi-generator-cli.jar https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.12.0/openapi-generator-cli-7.12.0.jar
+    - cp correction/lab4/exercice1/openapi.yaml lab4/exercice1/openapi.yaml && sh lab4/exercice1/generer.sh && (cd lab4/exercice1/banque-api && mvn -B -q -DskipTests package) && sh lab4/exercice2/generer.sh && (cd lab4/exercice2/banque-api && mvn -B -q -DskipTests package)

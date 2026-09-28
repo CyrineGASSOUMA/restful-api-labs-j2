@@ -1,0 +1,18 @@
+name: verifier
+on: [push, workflow_dispatch]
+jobs:
+  corrections:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21', cache: maven }
+      - run: for d in correction/lab4/exercice2/banque-api correction/lab4/exercice3/banque-api correction/lab5/banque-api correction/lab6/banque-api correction/lab7/banque-api; do echo "=== $d"; (cd $d && mvn -B -q verify) || exit 1; done
+  generation-lab4:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21', cache: maven }
+      - run: mkdir -p outils && curl -sSLo outils/openapi-generator-cli.jar https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.12.0/openapi-generator-cli-7.12.0.jar
+      - run: cp correction/lab4/exercice1/openapi.yaml lab4/exercice1/openapi.yaml && sh lab4/exercice1/generer.sh && (cd lab4/exercice1/banque-api && mvn -B -q -DskipTests package) && sh lab4/exercice2/generer.sh && (cd lab4/exercice2/banque-api && mvn -B -q -DskipTests package)

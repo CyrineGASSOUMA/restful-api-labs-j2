@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  title: API Banque - Virements
+  version: 1.0.0
+servers:
+  - url: /
+tags:
+  - name: Virements
+paths:
+  /virements:
+    post:
+      tags: [Virements]
+      operationId: creerVirement
+      summary: Créer un virement
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: false
+          description: Clé unique générée par le client pour éviter les doublons en cas de nouvel essai
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VirementRequest'
+      responses:
+        '201':
+          description: Virement créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Virement'
+        '400':
+          description: Requête invalide
+        '404':
+          description: Compte introuvable
+        '422':
+          description: Solde insuffisant
+  /virements/{id}:
+    get:
+      tags: [Virements]
+      operationId: lireVirement
+      summary: Lire un virement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Virement trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Virement'
+        '404':
+          description: Virement introuvable
+components:
+  schemas:
+    VirementRequest:
+      type: object
+      required: [compteSource, compteDestination, montant]
+      properties:
+        compteSource:
+          type: integer
+          format: int64
+          example: 1
+        compteDestination:
+          type: integer
+          format: int64
+          example: 2
+        montant:
+          type: number
+          minimum: 0.01
+          example: 100
+        libelle:
+          type: string
+          maxLength: 140
+          example: Loyer
+    Virement:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        compteSource:
+          type: integer
+          format: int64
+          example: 1
+        compteDestination:
+          type: integer
+          format: int64
+          example: 2
+        montant:
+          type: number
+          example: 100
+        libelle:
+          type: string
+          example: Loyer
+        statut:
+          type: string
+          example: EXECUTE

@@ -1,0 +1,38 @@
+### Jour 2 — lancez d'abord : mvn spring-boot:run
+@base = http://localhost:8080
+
+### Lab 4 — créer un virement : 501 tant que rien n'est implémenté, puis 201
+POST {{base}}/virements
+Content-Type: application/json
+Accept: application/json
+
+{ "compteSource": 1, "compteDestination": 2, "montant": 100, "libelle": "Loyer" }
+
+### Montant négatif : 400 (validation générée depuis le contrat)
+POST {{base}}/virements
+Content-Type: application/json
+Accept: application/json
+
+{ "compteSource": 1, "compteDestination": 2, "montant": -5 }
+
+### Lire le virement 1 (après l'étape 3)
+GET {{base}}/virements/1
+
+### Virement inexistant : 404
+GET {{base}}/virements/999
+
+### Lab 5 — comptes en base
+GET {{base}}/comptes
+
+###
+GET {{base}}/comptes?type=EPARGNE
+
+###
+GET {{base}}/comptes/1
+
+###
+POST {{base}}/comptes
+Content-Type: application/json
+Accept: application/json
+
+{ "titulaire": "Emma Roux", "type": "COURANT", "solde": 300, "proprietaire": "emma" }

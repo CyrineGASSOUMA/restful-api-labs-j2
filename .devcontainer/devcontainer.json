@@ -1,0 +1,10 @@
+{
+  "name": "Formation RESTful API - Jour 2",
+  "image": "mcr.microsoft.com/devcontainers/java:1-21",
+  "features": { "ghcr.io/devcontainers/features/java:1": { "version": "none", "installMaven": "true" } },
+  "hostRequirements": { "cpus": 2 },
+  "forwardPorts": [8080],
+  "portsAttributes": { "8080": { "label": "API banque", "onAutoForward": "notify" } },
+  "customizations": { "vscode": { "extensions": ["vscjava.vscode-java-pack", "vmware.vscode-spring-boot", "humao.rest-client"] } },
+  "postCreateCommand": "mkdir -p outils && curl -sSLo outils/openapi-generator-cli.jar https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.12.0/openapi-generator-cli-7.12.0.jar"
+}

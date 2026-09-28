@@ -1,0 +1,26 @@
+### Exercice 2 — mock généré. Lancez d'abord : mvn spring-boot:run (dans banque-api)
+@base = http://localhost:8080
+
+### Créer un virement : 201 + exemple du contrat
+POST {{base}}/virements
+Content-Type: application/json
+Accept: application/json
+
+{ "compteSource": 1, "compteDestination": 2, "montant": 100, "libelle": "Loyer" }
+
+### Montant négatif : 400, la validation est aussi générée
+POST {{base}}/virements
+Content-Type: application/json
+Accept: application/json
+
+{ "compteSource": 1, "compteDestination": 2, "montant": -5 }
+
+### Lire n'importe quel id : 200 + exemple (le mock ne connaît pas les données)
+GET {{base}}/virements/999
+Accept: application/json
+
+### Sans header Accept : 201 mais corps vide (l'exemple n'est renvoyé que si le client accepte le JSON)
+POST {{base}}/virements
+Content-Type: application/json
+
+{ "compteSource": 1, "compteDestination": 2, "montant": 100 }

@@ -1,0 +1,83 @@
+### Corrigé jour 2 — mvn spring-boot:run
+@base = http://localhost:8080
+
+### Token Alice : tous les droits
+# @name alice
+POST {{base}}/dev/token?sub=alice&scope=comptes:lire%20comptes:ecrire%20virements:creer
+
+### Token Bob : lecture seule
+# @name bob
+POST {{base}}/dev/token?sub=bob&scope=comptes:lire
+
+@tokenAlice = {{alice.response.body.access_token}}
+@tokenBob = {{bob.response.body.access_token}}
+
+### Sans token : 401
+GET {{base}}/comptes
+
+### Mes comptes (Alice), paginés : 200
+GET {{base}}/comptes?page=0&size=10&sort=solde,desc
+Authorization: Bearer {{tokenAlice}}
+
+### Filtre par type : 200
+GET {{base}}/comptes?type=EPARGNE
+Authorization: Bearer {{tokenAlice}}
+
+### BOLA : Bob lit le compte 1 d'Alice : 404
+GET {{base}}/comptes/1
+Authorization: Bearer {{tokenBob}}
+
+### Bob crée un compte sans le scope comptes:ecrire : 403
+POST {{base}}/comptes
+Authorization: Bearer {{tokenBob}}
+Content-Type: application/json
+
+{ "titulaire": "Bob Durand", "type": "COURANT" }
+
+### Alice crée un compte : 201 + Location, solde 0
+POST {{base}}/comptes
+Authorization: Bearer {{tokenAlice}}
+Content-Type: application/json
+
+{ "titulaire": "Alice Martin", "type": "COURANT" }
+
+### Validation : 400 avec la liste des champs
+POST {{base}}/comptes
+Authorization: Bearer {{tokenAlice}}
+Content-Type: application/json
+
+{ "titulaire": "", "type": null }
+
+### Virement Alice -> Bob : 201
+POST {{base}}/virements
+Authorization: Bearer {{tokenAlice}}
+Content-Type: application/json
+Idempotency-Key: 7f3c9a10-0001
+
+{ "compteSource": 1, "compteDestination": 3, "montant": 100, "libelle": "Remboursement" }
+
+### Même clé rejouée : 201, même virement, pas de second débit
+POST {{base}}/virements
+Authorization: Bearer {{tokenAlice}}
+Content-Type: application/json
+Idempotency-Key: 7f3c9a10-0001
+
+{ "compteSource": 1, "compteDestination": 3, "montant": 100, "libelle": "Remboursement" }
+
+### Solde insuffisant : 422
+POST {{base}}/virements
+Authorization: Bearer {{tokenAlice}}
+Content-Type: application/json
+
+{ "compteSource": 1, "compteDestination": 3, "montant": 999999 }
+
+### Montant négatif (contrat) : 400
+POST {{base}}/virements
+Authorization: Bearer {{tokenAlice}}
+Content-Type: application/json
+
+{ "compteSource": 1, "compteDestination": 3, "montant": -5 }
+
+### Lire le virement 1 : 200
+GET {{base}}/virements/1
+Authorization: Bearer {{tokenAlice}}

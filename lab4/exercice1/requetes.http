@@ -1,0 +1,24 @@
+### Exercice 1 et 3 — lancez d'abord : mvn spring-boot:run (dans banque-api)
+@base = http://localhost:8080
+
+### Créer un virement : 501 à l'exercice 1, 201 à l'exercice 3
+POST {{base}}/virements
+Content-Type: application/json
+Accept: application/json
+
+{ "compteSource": 1, "compteDestination": 2, "montant": 100, "libelle": "Loyer" }
+
+### Montant négatif : 400 (validation générée depuis le contrat)
+POST {{base}}/virements
+Content-Type: application/json
+Accept: application/json
+
+{ "compteSource": 1, "compteDestination": 2, "montant": -5 }
+
+### Lire le virement 1 : 501 à l'exercice 1, 200 à l'exercice 3
+GET {{base}}/virements/1
+Accept: application/json
+
+### Virement inexistant : 404 à l'exercice 3
+GET {{base}}/virements/999
+Accept: application/json
